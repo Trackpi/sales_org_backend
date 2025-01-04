@@ -25,38 +25,34 @@ const userSchema = new mongoose.Schema({
     },
     dob:{
         type: String,
-        default:''
-    },
+     },
     blood:{
         type: String,
-        default:''
-    },
+     },
     location:{
         type: String,
-        default:''
-    },
+     },
     address:{
         type: String,
-        default:''
-    },
+     },
     pinCode:{
         type: Number,
-        default:''
-    },
+     },
     city:{
         type: String,
-        default:''
-    },
+     },
     country:{
         type: String,
-        default:''
+      
     },
     image:{
         type: String,
-        default:''
-    },
-
-    
+        
+    },    
+    userType:{
+        type: String,
+        required:true
+    },    
 });
 
 const user = mongoose.model('user', userSchema);

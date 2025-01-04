@@ -24,26 +24,12 @@ const addUser = async (req, res) => {
 const editUser = async (req, res) => {
   const { userId } = req.params;
   try {
-    const { name, email, phone, dob, blood, location, address, pinCode, city, country,password,id } = req.body;
+    const data = req.body;
     const image = req.file ? `/uploads/employees/${req.file.filename}` : undefined;
 
     const updatedUser = await User.findOneAndUpdate(
-      { _id: userId },  // Assuming `id` is the unique identifier
-      {
-        name,
-        email,
-        id,
-        password,
-        phone,
-        dob,
-        blood,
-        location,
-        address,
-        pinCode,
-        city,
-        country,
-        ...(image && {image})
-      },
+      { _id: userId },  
+     {...data, ...(image && { image })},
       { new: true }  // Return the updated document
     );
 
@@ -78,7 +64,6 @@ const getUser = async (req, res) => {
   const { userId } = req.params;
   try {
     const user = await User.findOne({ _id: userId });
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
