@@ -12,7 +12,7 @@ exports.updateAdmin = async (req, res) => {
       return res.status(404).json({ message: "Admin not found." });
     }
 
-    // Update fields
+    
     if (username) admin.username = username;
     if (password) admin.password = password;
 
