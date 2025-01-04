@@ -1,7 +1,7 @@
 const express = require("express");
-const verifyJwt = require("../middlewares/jwtMiddleware"); // Import JWT middleware
+const verifyJwt = require("../middlewares/jwtMiddleware"); 
 
-const adminController = require("../controllers/adminController"); // Adjust the path
+const adminController = require("../controllers/adminController"); 
 const router = express.Router();
 
 
