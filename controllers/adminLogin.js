@@ -2,26 +2,6 @@ const Admin = require("../models/adminmodel");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../middlewares/emailService");
 
-// Update an admin
-exports.updateAdmin = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const admin = await Admin.findById(req.params.id);
-
-    if (!admin) {
-      return res.status(404).json({ message: "Admin not found." });
-    }
-
-    
-    if (username) admin.username = username;
-    if (password) admin.password = password;
-
-    await admin.save();
-    res.status(200).json({ message: "Admin updated successfully.", admin });
-  } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
-  }
-};
 
 // Admin Login
 exports.adminlogin = async (req, res) => {
