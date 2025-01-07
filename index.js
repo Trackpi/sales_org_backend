@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
 const userRoutes = require("./routes/userRouter");
-const adminRoutes = require("./routes/adminRouter");
+const adminRoutes = require("./routes/adminLoginRouter");
 require("dotenv").config();
 const connectDB = require("./config/connection");
 const fs = require("fs");
