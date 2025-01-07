@@ -15,6 +15,6 @@ const adminHisSchema = new mongoose.Schema({
   }
 });
 
-const adminHisModel = new mongoose.model("admins", adminHisSchema);
+const adminHisModel = new mongoose.model("adminhistory", adminHisSchema);
 
 module.exports = adminHisModel;
