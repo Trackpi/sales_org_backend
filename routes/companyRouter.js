@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const companyController = require('../controllers/companyController'); 
-const verifyJwt = require('../middlewares/jwtMiddleware'); // Add JWT middleware if required
 
 // Create a new company
 router.post('/', companyController.createCompany);
@@ -10,15 +9,15 @@ router.post('/', companyController.createCompany);
 router.post('/login', companyController.companyLogin);
 
 // Get all companies
-router.get('/', verifyJwt, companyController.getAllCompanies);
+router.get('/', companyController.getAllCompanies);
 
 // Get a single company by ID
-router.get('/:id', verifyJwt, companyController.getCompanyById);
+router.get('/:id', companyController.getCompanyById);
 
 // Update a company by ID
-router.put('/:id', verifyJwt, companyController.updateCompany);
+router.put('/:id', companyController.updateCompany);
 
 // Delete a company by ID
-router.delete('/:id', verifyJwt, companyController.deleteCompany);
+router.delete('/:id', companyController.deleteCompany);
 
 module.exports = router;

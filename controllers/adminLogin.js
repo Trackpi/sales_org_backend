@@ -2,6 +2,11 @@ const Admin = require("../models/adminmodel");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../middlewares/emailService");
 
+const Admin = require("../models/adminmodel");
+const jwt = require("jsonwebtoken");
+const sendEmail = require("../middlewares/emailService");
+const bcrypt = require("bcryptjs");
+
 
 // Admin Login
 exports.adminlogin = async (req, res) => {
