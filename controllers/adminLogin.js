@@ -12,9 +12,13 @@ exports.adminlogin = async (req, res) => {
       return res.status(400).json({ error: "Username and password are required." });
     }
 
-    const admin = await Admin.findOne({ username });
+    var admin = await Admin.findOne({ username });
     if (!admin) {
-      return res.status(404).json({ error: "Invalid credentials." });
+      admin = await Admin.findOne({ email:username });
+      if(!admin)
+      {
+        return res.status(404).json({ error: "Invalid credentials." });
+      }
     }
 
     // Check hashed password
