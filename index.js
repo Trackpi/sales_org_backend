@@ -15,6 +15,8 @@ app.use(cors());
 const teamRouter = require('./routes/teamRouter');
 const employeeRoutes = require('./routes/employeeRouter')
 const companyRoutes = require('./routes/companyRouter')
+
+const adminManagementRoutes = require('./routes/adminManagementRoutes');
 connectDB();
 
 app.listen(3001, () => {
@@ -27,6 +29,7 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true }); // Creates 'uploads' folder if it doesn't exist
 }
 app.use(adminRoutes);
+app.use('/api/adminmanagement', adminManagementRoutes);
 
 // app.use("/api/users", userRoutes);
 
