@@ -13,7 +13,9 @@ const verifyJwt = (req, res, next) => {
     if (!decodedToken._id) {
       return res.status(400).json({ message: "Invalid token: missing user ID." });
     }
+
     req.adminid = decodedToken._id;
+    
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
