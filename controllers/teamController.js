@@ -9,7 +9,6 @@ exports.getTeams = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 // Create a new team
 exports.addTeam = async (req, res) => {
   try {
