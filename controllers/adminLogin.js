@@ -1,6 +1,7 @@
 const Admin = require("../models/adminmodel");
 const jwt = require("jsonwebtoken");
 const adminHisModel = require("../models/adminPanelHistory");
+const bcrypt = require("bcrypt");
 
 // Admin Login
 exports.adminlogin = async (req, res) => {
@@ -16,8 +17,9 @@ exports.adminlogin = async (req, res) => {
       return res.status(404).json({ error: "Invalid credentials." });
     }
 
-    // Check plain-text password (no hashing)
-    if (admin.password !== password) {
+    // Check hashed password
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
       return res.status(403).json({ error: "Invalid credentials." });
     }
 
@@ -26,7 +28,8 @@ exports.adminlogin = async (req, res) => {
       expiresIn: "1h", // Token expiration time
     });
 
-    adminHisModel.create({adminid:admin._id,action:'logined'})
+    // Log the admin action
+    await adminHisModel.create({ adminid: admin._id, action: 'logined' });
 
     res.status(200).json({ token: `${token}` });
   } catch (err) {
