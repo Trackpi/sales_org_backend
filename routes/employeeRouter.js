@@ -1,7 +1,8 @@
 const express = require('express');
-const employeeController = require('../controllers/employeController'); 
+const employeeController = require('../controllers/employeController');
 
 const router = express.Router();
+
 
 // Create a new employee
 router.post('/', employeeController.createEmployee);
@@ -19,3 +20,6 @@ router.put('/:id', employeeController.updateEmployee);
 router.delete('/:id', employeeController.deleteEmployee);
 
 module.exports = router;
+
+
+

@@ -76,3 +76,32 @@ exports.addMembersToTeam = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.addMemberToTeam = async (req, res) => {
+    const { teamId, empId } = req.body;
+  
+    try {
+      const team = await Team.findById(teamId);
+      const employee = await Employee.findById(empId);
+  
+      if (!team || !employee) {
+        return res.status(404).json({ error: 'Team or employee not found' });
+      }
+  
+      if (team.members.includes(empId)) {
+        return res.status(400).json({ error: 'Employee already in team' });
+      }
+  
+      team.members.push(empId);
+      employee.teamId = teamId;
+  
+      await team.save();
+      await employee.save();
+  
+      res.status(200).json({ message: 'Member added successfully', team });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  

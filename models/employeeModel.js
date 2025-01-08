@@ -1,44 +1,57 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const employeeSchema = new mongoose.Schema({
-    username:{
+    username: {
+        type: String,
+        required: [true, 'Username is required'],
+        unique: true,
+    },
+    email: {
+        type: String,
+        required: [true, 'Email is required'],
+        unique: true,
+    },
+    empId: {
+        type: String,
+        required: [true, 'Employee ID is required'],
+        unique: true,
+        sparse: true
+    },
+    phone: {
+        type: Number,
+        required: [true, 'Phone number is required'],
+    },
+    accNo: {
+        type: String,
+        required: [true, 'Account number is required'],
+        unique: true
+    },
+    ifc: {
+        type: String,
+        required: [true, 'IFSC code is required'],
+
+    },
+    bank: {
+        type: String,
+        required: [true, 'Bank name is required']
+    },
+    branch: {
+        type: String,
+        required: [true, 'Branch name is required']
+    },
+    role: {
+        type: String,
+        required: [true, 'Role is required'],
+        enum:['Employee', 'Manager'],
+        default: "Employee"
+    },
+    password:{
         type:String,
-        required:true
-    },
-    email:{
-        type:String,
-        required:true
-    },
-    empId:{
-        type:String,
-        required:true
-    },
-    phone:{
-        type:Number,
-        required:true
-    },
-    accNo:{
-        type:String,
-        required:true
-    },
-    ifc:{
-        type:String,
-        required:true
-    },
-    bank:{
-        type:String,
-        required:true
-    },
-    branch:{
-        type:String,
-        required:true
-    },
-    role:{
-        type:String,
-        enum:["Employee", "Manager"],
-        default:"Employee"
-    },
-}
-)
-const employee = new mongoose.model('employees', employeeSchema)
-module.exports = employee
+        required:[true, 'Password is required'],
+    }
+}, {
+    timestamps: true
+});
+
+const Employee = mongoose.model('Employee', employeeSchema);
+module.exports = Employee;
