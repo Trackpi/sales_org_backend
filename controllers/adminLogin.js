@@ -1,12 +1,6 @@
 const Admin = require("../models/adminmodel");
 const jwt = require("jsonwebtoken");
-const sendEmail = require("../middlewares/emailService");
-
-const Admin = require("../models/adminmodel");
-const jwt = require("jsonwebtoken");
-const sendEmail = require("../middlewares/emailService");
-const bcrypt = require("bcryptjs");
-
+const adminHisModel = require("../models/adminPanelHistory");
 
 // Admin Login
 exports.adminlogin = async (req, res) => {
@@ -24,11 +18,6 @@ exports.adminlogin = async (req, res) => {
 
     // Check plain-text password (no hashing)
     if (admin.password !== password) {
-      await sendEmail(
-        admin.email,
-        "Incorrect Password Attempt",
-        `Dear ${admin.username}, there was an incorrect password attempt for your account. If this wasn't you, please secure your account immediately.`
-      );
       return res.status(403).json({ error: "Invalid credentials." });
     }
 
@@ -36,6 +25,8 @@ exports.adminlogin = async (req, res) => {
     const token = jwt.sign({ _id: admin._id }, process.env.JWT_KEY, {
       expiresIn: "1h", // Token expiration time
     });
+
+    adminHisModel.create({adminid:admin._id,action:'logined'})
 
     res.status(200).json({ token: `${token}` });
   } catch (err) {
