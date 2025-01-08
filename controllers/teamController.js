@@ -1,5 +1,6 @@
 const Team = require('../models/teamModel');
 const Employee = require('../models/employeeModel');
+const adminHisModel = require('../models/adminPanelHistory');
 
 const createTeam = async (req, res) => {
   const { name, description, managerId } = req.body;
@@ -12,7 +13,6 @@ const createTeam = async (req, res) => {
 
     const newTeam = new Team({ name, description, managerId });
     await newTeam.save();
-
     res.status(201).json({ message: 'Team created successfully', team: newTeam });
   } catch (error) {
     res.status(500).json({ error: error.message });
