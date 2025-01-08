@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 app.use(express.json());
 app.use(cors());
-
+const teamRouter = require('./routes/teamRouter');
 connectDB();
 
 app.listen(3001, () => {
@@ -24,7 +24,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 app.use(adminRoutes);
 app.use("/api/users", userRoutes);
-
+app.use('/api/teams', teamRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found." });
