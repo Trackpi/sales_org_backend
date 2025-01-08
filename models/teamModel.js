@@ -1,26 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const teamSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true, // Team names must be unique
-  },
-  description: {
-    type: String,
-  },
-  managerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee', // References the Employee model for the manager
-    required: true,
-  },
+const TeamSchema = new mongoose.Schema({
+  teamName: { type: String, required: true },
+  startingDate: { type: Date, required: true },
+  managerName: { type: String, required: true },
+  teamCount: { type: Number, default: 0 },
   members: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Employee', // References Employee model
+      employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
+      name: { type: String, required: true },
+      status: { type: String, required: true },
     },
   ],
 });
 
-const Team = mongoose.model('Team', teamSchema);
-module.exports = Team;
+module.exports = mongoose.model("Team", TeamSchema);

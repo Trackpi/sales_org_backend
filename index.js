@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
+
+// const userRoutes = require("./routes/userRouter");
+
 const adminRoutes = require("./routes/adminLoginRouter");
 require("dotenv").config();
 const connectDB = require("./config/connection");
@@ -24,6 +27,9 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true }); // Creates 'uploads' folder if it doesn't exist
 }
 app.use(adminRoutes);
+
+// app.use("/api/users", userRoutes);
+
 app.use('/api/teams', teamRouter);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/companies', companyRoutes);
