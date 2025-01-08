@@ -1,7 +1,7 @@
 const Team = require('../models/teamModel');
 const Employee = require('../models/employeeModel');
 
-const createTeam = async (req, res) => {
+exports.createTeam = async (req, res) => {
   const { name, description, managerId } = req.body;
 
   try {
@@ -20,22 +20,22 @@ const createTeam = async (req, res) => {
 };
 //Add Member to Team
 
-const addMemberToTeam = async (req, res) => {
-    const { teamId, employeeId } = req.body;
+exports.addMemberToTeam = async (req, res) => {
+    const { teamId, empId } = req.body;
   
     try {
       const team = await Team.findById(teamId);
-      const employee = await Employee.findById(employeeId);
+      const employee = await Employee.findById(empId);
   
       if (!team || !employee) {
         return res.status(404).json({ error: 'Team or employee not found' });
       }
   
-      if (team.members.includes(employeeId)) {
+      if (team.members.includes(empId)) {
         return res.status(400).json({ error: 'Employee already in team' });
       }
   
-      team.members.push(employeeId);
+      team.members.push(empId);
       employee.teamId = teamId;
   
       await team.save();
@@ -48,18 +48,18 @@ const addMemberToTeam = async (req, res) => {
   };
 
   //Remove Member from Team
-  const removeMemberFromTeam = async (req, res) => {
-    const { teamId, employeeId } = req.body;
+  exports.removeMemberFromTeam = async (req, res) => {
+    const { teamId, empId } = req.body;
   
     try {
       const team = await Team.findById(teamId);
-      const employee = await Employee.findById(employeeId);
+      const employee = await Employee.findById(empId);
   
       if (!team || !employee) {
         return res.status(404).json({ error: 'Team or employee not found' });
       }
   
-      team.members = team.members.filter((id) => id.toString() !== employeeId);
+      team.members = team.members.filter((id) => id.toString() !== empId);
       employee.teamId = null;
   
       await team.save();
@@ -71,7 +71,7 @@ const addMemberToTeam = async (req, res) => {
     }
   };
 //Get All Employees in a Team
-const getTeamMembers = async (req, res) => {
+exports.getTeamMembers = async (req, res) => {
     const { teamId } = req.params;
   
     try {
