@@ -1,20 +1,19 @@
 const mongoose = require("mongoose");
 
-const adminHisSchema = new mongoose.Schema({
-  adminid: {
-    type: String,
-    required: true,
+const adminHisSchema = new mongoose.Schema(
+  {
+    adminid: {
+      type: String,
+      required: true,
+    },
+    action: {
+      type: String,
+      required: true,
+    },
   },
-  action: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default:Date.now()
-  }
-});
+  { timestamps: true }
+);
 
-const adminHisModel = new mongoose.model("adminhistory", adminHisSchema);
+const adminHisModel = mongoose.model("AdminHistory", adminHisSchema);
 
 module.exports = adminHisModel;

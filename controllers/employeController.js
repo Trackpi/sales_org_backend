@@ -1,12 +1,12 @@
 const Employee = require('../models/employeeModel');
+const adminhistory = require('../models/adminPanelHistory');
 const bcrypt = require('bcrypt');
 
 // Create a new employee
 exports.createEmployee = async (req, res) => {
+    const adminid = req.adminid; // Fetch admin ID from the request
     try {
         const { username, email, empId, phone, accNo, ifc, bank, branch, role, password, designation } = req.body;
-
-        
 
         // Validate empId
         if (!empId || empId.trim() === "") {
@@ -39,12 +39,17 @@ exports.createEmployee = async (req, res) => {
 
         await newEmployee.save();
 
+        // Log action in admin history
+        await adminhistory.create({
+            adminid,
+            action: `New employee created with ID: ${newEmployee._id}`
+        });
+
         res.status(201).json({ message: "Employee created successfully.", employee: newEmployee });
     } catch (error) {
         res.status(500).json({ message: "Server error.", error: error.message });
     }
 };
-
 
 // Get all employees
 exports.getAllEmployees = async (req, res) => {
@@ -71,6 +76,7 @@ exports.getEmployeeById = async (req, res) => {
 
 // Update an employee by ID
 exports.updateEmployee = async (req, res) => {
+    const adminid = req.adminid; // Fetch admin ID from the request
     try {
         const updates = req.body;
 
@@ -83,6 +89,13 @@ exports.updateEmployee = async (req, res) => {
         if (!employee) {
             return res.status(404).json({ message: "Employee not found." });
         }
+
+        // Log action in admin history
+        await adminhistory.create({
+            adminid,
+            action: `Employee updated with ID: ${employee._id}`
+        });
+
         res.status(200).json({ message: "Employee updated successfully.", employee });
     } catch (error) {
         res.status(500).json({ message: "Server error.", error: error.message });
@@ -91,11 +104,19 @@ exports.updateEmployee = async (req, res) => {
 
 // Delete an employee by ID
 exports.deleteEmployee = async (req, res) => {
+    const adminid = req.adminid; // Fetch admin ID from the request
     try {
         const employee = await Employee.findByIdAndDelete(req.params.id);
         if (!employee) {
             return res.status(404).json({ message: "Employee not found." });
         }
+
+        // Log action in admin history
+        await adminhistory.create({
+            adminid,
+            action: `Employee deleted with ID: ${employee._id}`
+        });
+
         res.status(200).json({ message: "Employee deleted successfully." });
     } catch (error) {
         res.status(500).json({ message: "Server error.", error: error.message });
