@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const Admin = require('../models/adminManagementModel');
 
-// Create a new admin (only super admin can perform this)
+// Create a new admin
 const createAdmin = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -43,6 +43,30 @@ const getAllAdmins = async (req, res) => {
   }
 };
 
+// Edit admin details
+const editAdmin = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { newUsername, newEmail, newPassword } = req.body;
+
+    const admin = await Admin.findOne({ username });
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    // Update fields if provided
+    if (newUsername) admin.username = newUsername;
+    if (newEmail) admin.email = newEmail;
+    if (newPassword) admin.password = await bcrypt.hash(newPassword, 10);
+
+    await admin.save();
+    res.status(200).json({ message: 'Admin updated successfully', admin });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating admin', error });
+  }
+};
+
 // Delete an admin
 const deleteAdmin = async (req, res) => {
   try {
@@ -60,4 +84,4 @@ const deleteAdmin = async (req, res) => {
   }
 };
 
-module.exports = { createAdmin, getAllAdmins, deleteAdmin };
+module.exports = { createAdmin, getAllAdmins, editAdmin, deleteAdmin };
