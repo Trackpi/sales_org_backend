@@ -1,9 +1,11 @@
-const Company = require("../models/companyModel"); 
-const bcrypt = require('bcrypt')
+const Company = require("../models/companyModel");
+const adminhistory = require("../models/adminPanelHistory"); 
+const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 
 // Create a new company
 exports.createCompany = async (req, res) => {
+  const adminid = req.adminid; // Fetch admin ID from the request
   try {
     const { username, contact, email, password, role } = req.body;
 
@@ -17,10 +19,13 @@ exports.createCompany = async (req, res) => {
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-  
+
     // Create a new company
     const newCompany = new Company({ username, contact, email, password: hashedPassword, role });
     await newCompany.save();
+
+    // Log action in admin history
+    await adminhistory.create({ adminid, action: `New company created with ID: ${newCompany._id}` });
 
     res
       .status(201)
@@ -47,7 +52,7 @@ exports.companyLogin = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: company._id , role: company.role}, process.env.JWT_KEY, {
+    const token = jwt.sign({ id: company._id, role: company.role }, process.env.JWT_KEY, {
       expiresIn: "1h",
     });
 
@@ -84,11 +89,12 @@ exports.getCompanyById = async (req, res) => {
 
 // Update a company by ID
 exports.updateCompany = async (req, res) => {
+  const adminid = req.adminid; // Fetch admin ID from the request
   try {
     const updates = req.body;
 
-    // hash the password by ID
-    if(updates.password){
+    // Hash the password if it is being updated
+    if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);
     }
 
@@ -99,6 +105,13 @@ exports.updateCompany = async (req, res) => {
     if (!company) {
       return res.status(404).json({ message: "Company not found." });
     }
+
+    // Log action in admin history
+    await adminhistory.create({
+      adminid,
+      action: `Company updated with ID: ${company._id}`,
+    });
+
     res.status(200).json({ message: "Company updated successfully.", company });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error: error.message });
@@ -107,23 +120,21 @@ exports.updateCompany = async (req, res) => {
 
 // Delete a company by ID
 exports.deleteCompany = async (req, res) => {
+  const adminid = req.adminid; // Fetch admin ID from the request
   try {
     const company = await Company.findByIdAndDelete(req.params.id);
     if (!company) {
       return res.status(404).json({ message: "Company not found." });
     }
+
+    // Log action in admin history
+    await adminhistory.create({
+      adminid,
+      action: `Company deleted with ID: ${company._id}`,
+    });
+
     res.status(200).json({ message: "Company deleted successfully." });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-

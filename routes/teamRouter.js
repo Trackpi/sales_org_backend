@@ -1,31 +1,32 @@
 const express = require("express");
 const teamController = require("../controllers/teamController");
+const verifyJwt = require("../middlewares/jwtMiddleware");
 
 const router = express.Router();
 
 // Get all teams
-router.get("/", teamController.getTeams);
+router.get("/",verifyJwt , teamController.getTeams);
 
 // Create a new team
-router.post("/", teamController.addTeam);
+router.post("/",verifyJwt , teamController.addTeam);
 
 // Get a single team by ID
-router.get("/:id", teamController.getTeamById);
+router.get("/:id",verifyJwt , teamController.getTeamById);
 
 // View team details by ID
-router.get("/:id/details", teamController.viewTeamDetails);
+router.get("/:id/details",verifyJwt , teamController.viewTeamDetails);
 
 // Update a team by ID
-router.put("/:id", teamController.updateTeam);
+router.put("/:id",verifyJwt , teamController.updateTeam);
 
 // Delete a team by ID
-router.delete("/:id", teamController.deleteTeam);
+router.delete("/:id",verifyJwt , teamController.deleteTeam);
 
 // Add members to a team
-router.post("/add-members", teamController.addMembersToTeam);
+router.post("/add-members",verifyJwt , teamController.addMembersToTeam);
 
 // Search for teams
-router.get("/search", teamController.searchTeams);
+router.get("/search",verifyJwt , teamController.searchTeams);
 
 
 module.exports = router;

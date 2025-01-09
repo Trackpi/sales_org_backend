@@ -1,6 +1,6 @@
 const adminModel = require("../models/adminManagementModel");
 const jwt = require("jsonwebtoken");
-const adminHisModel = require("../models/adminPanelHistory");
+const adminhistory = require('../models/adminPanelHistory'); 
 const bcrypt = require("bcrypt");
 
 // Admin Login
@@ -34,7 +34,7 @@ exports.adminlogin = async (req, res) => {
     });
 
     // Log the admin action
-    await adminHisModel.create({ adminid: admin._id, action: 'logined' });
+    await adminhistory.create({ adminid: admin._id, action: 'logined' });
 
     res.status(200).json({ token: `${token}` });
   } catch (err) {
