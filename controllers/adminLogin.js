@@ -1,4 +1,4 @@
-const Admin = require("../models/adminmodel");
+const adminModel = require("../models/adminManagementModel");
 const jwt = require("jsonwebtoken");
 const adminHisModel = require("../models/adminPanelHistory");
 const bcrypt = require("bcrypt");
@@ -12,9 +12,10 @@ exports.adminlogin = async (req, res) => {
       return res.status(400).json({ error: "Username and password are required." });
     }
 
-    var admin = await Admin.findOne({ username });
+    var admin = await adminModel.findOne({ username });
+   
     if (!admin) {
-      admin = await Admin.findOne({ email:username });
+      admin = await adminModel.findOne({ email:username });
       if(!admin)
       {
         return res.status(404).json({ error: "Invalid credentials." });

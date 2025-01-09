@@ -28,11 +28,11 @@ const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true }); // Creates 'uploads' folder if it doesn't exist
 }
-app.use(adminRoutes);
+
+
+app.use('/api/admin',adminRoutes);
 app.use('/api/adminmanagement', adminManagementRoutes);
-
 // app.use("/api/users", userRoutes);
-
 app.use('/api/teams', teamRouter);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/companies', companyRoutes);
