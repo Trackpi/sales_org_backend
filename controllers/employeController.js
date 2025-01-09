@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 // Create a new employee
 exports.createEmployee = async (req, res) => {
     try {
-        const { username, email, empId, phone, accNo, ifc, bank, branch, role, password } = req.body;
+        const { username, email, empId, phone, accNo, ifc, bank, branch, role, password, designation } = req.body;
 
         
 
@@ -34,6 +34,7 @@ exports.createEmployee = async (req, res) => {
             branch,
             role,
             password: hashedPassword,
+            designation
         });
 
         await newEmployee.save();

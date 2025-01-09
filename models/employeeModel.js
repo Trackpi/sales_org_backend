@@ -48,7 +48,10 @@ const employeeSchema = new mongoose.Schema({
     password:{
         type:String,
         required:[true, 'Password is required'],
-    }
+    },
+    designation:{
+        type:String
+    },
 }, {
     timestamps: true
 });
