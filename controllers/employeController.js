@@ -6,7 +6,9 @@ const bcrypt = require('bcrypt');
 exports.createEmployee = async (req, res) => {
     const adminid = req.adminid; // Fetch admin ID from the request
     try {
-        const { username, email, empId, phone, accNo, ifc, bank, branch, role, password, designation } = req.body;
+        const { username, email, empId, phone, accNo, ifc, bank, branch, role, password, designation , teamId, buisnessCard,
+            empIdCard, offerletter, address, location, bloodGrp, dob, city, pin
+        } = req.body;
 
         // Validate empId
         if (!empId || empId.trim() === "") {
@@ -34,7 +36,9 @@ exports.createEmployee = async (req, res) => {
             branch,
             role,
             password: hashedPassword,
-            designation
+            designation,
+            teamId, buisnessCard,
+            empIdCard, offerletter, address, location, bloodGrp, dob, city, pin
         });
 
         await newEmployee.save();

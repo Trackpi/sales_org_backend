@@ -13,6 +13,7 @@ const employeeSchema = new mongoose.Schema({
     },
     empId: {
         type: String,
+        default:1,
         required: [true, 'Employee ID is required'],
         unique: true,
         sparse: true
@@ -25,6 +26,10 @@ const employeeSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Account number is required'],
         unique: true
+    },
+    accName:{
+        type:String,
+        required:[true,'Account name is required'],
     },
     ifc: {
         type: String,
@@ -49,7 +54,37 @@ const employeeSchema = new mongoose.Schema({
         type:String,
         required:[true, 'Password is required'],
     },
+    teamId:{
+        type:String,
+    },
     designation:{
+        type:String
+    },
+    buisnessCard:{
+        type:String
+    },
+    empIdCard:{
+        type:String
+    },
+    offerletter:{
+        type:String
+    },
+    address:{
+        type:String
+    },
+    location:{
+        type:String
+    },
+    bloodGrp:{
+        type:String
+    },
+    dob:{
+        type:Date
+    },
+    city:{
+        type:String
+    },
+    pin:{
         type:String
     },
 }, {
