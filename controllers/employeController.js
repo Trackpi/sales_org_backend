@@ -104,3 +104,62 @@ exports.deleteEmployee = async (req, res) => {
     res.status(500).json({ message: "Error deleting employee", error: error.message });
   }
 };
+
+
+// soft delete setup
+exports.SoftDeletion = async (req,res) => {
+    try {
+        const {id}=req.params
+        const result = await Employee.findByIdAndUpdate(
+        {_id:id},
+        { deletedAt: new Date() },
+        { new: true }
+        );
+        return res.status(200).json(result.matchedCount > 0);
+      } catch (error) {
+        throw new Error('Error during soft deletion: ' + error.message);
+      }
+    
+   
+};
+  
+// restore user from trasj
+  exports.restoreUser = async (req,res) => {
+    try {
+        const {id}=req.params
+        const result = await Employee.findByIdAndUpdate(
+          id,
+          { deletedAt: null },
+          { new: true }
+        );
+        return res.status(200).json(result.matchedCount > 0);        ;
+      } catch (error) {
+        throw new Error('Error during restore: ' + error.message);
+      }
+};
+
+// Get trashed users
+exports.getTrashedUsers = async () => {
+    try {
+     const trashedusers= await Employee.find({ deletedAt: { $ne: null } });
+    return  res.status(200).json(trashedusers)
+    } catch (error) {
+      throw new Error('Error fetching trashed users: ' + error.message);
+    }
+  };
+
+
+  // perment delete soft deleted user after 30 days 
+exports.permanentlyDeleteOldUsers = async () => {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setMinutes(thirtyDaysAgo.getMinutes() - 1);
+  
+      const result = await Employee.deleteMany({
+        deletedAt: { $lte: thirtyDaysAgo }
+      });
+      console.log(`${result.deletedCount} users permanently deleted.`);
+    } catch (error) {
+      console.error('Error during permanent deletion: ' + error.message);
+    }
+  };

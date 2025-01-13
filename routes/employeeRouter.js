@@ -23,4 +23,9 @@ router.get("/employees/:id",verifyjwt, employeeController.getEmployeeById);
 router.put("/employees/:id",verifyjwt, employeeController.updateEmployee); 
 router.delete("/employees/:id",verifyjwt, employeeController.deleteEmployee); 
 
+// Soft Delete an employee by ID
+router.delete('/soft/:id',verifyJwt , employeeController.SoftDeletion);
+//restore trashed users 
+router.delete('/softRestore/:id',verifyJwt , employeeController.restoreUser);
+
 module.exports = router;
