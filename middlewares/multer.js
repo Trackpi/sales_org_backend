@@ -1,51 +1,33 @@
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs"); 
 
+// Set storage engine
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder;
-    if (req.baseUrl.includes("projects")) {
-      folder = "uploads/projects";
-    } else if (req.baseUrl.includes("videos")) {
-      folder = "uploads/videos";
-    }
-    else if(req.baseUrl.includes("images")){
-      folder = "uploads/images";
-    } 
-    else if (req.baseUrl.includes("partners")){
-      folder = "uploads/partners";
-     } else if (req.baseUrl.includes("posters")){
-        folder = "uploads/posters";
-      }else {
-
-      folder = "uploads/";
-    }
-
-    // Create folder if it doesn't exist
-    const fullPath = path.join(__dirname, "..", folder);
-    if (!fs.existsSync(fullPath)) {
-      fs.mkdirSync(fullPath, { recursive: true });
-    }
-    cb(null, fullPath);
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Folder to store uploaded files
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
+// File filter to allow specific file types
+const fileFilter = (req, file, cb) => {
+  const allowedFileTypes = /jpeg|jpg|png|pdf/; // Accept images and PDFs
+  const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedFileTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  }
+  cb(new Error("Invalid file type. Only JPEG, PNG, and PDF are allowed."));
+};
+
+// Initialize Multer
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|pdf|mp4|avi/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      return cb(null, true);
-    }
-    cb(new Error("Only images, PDFs, and video files are allowed"));
-  }
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  fileFilter,
 });
 
 module.exports = upload;
