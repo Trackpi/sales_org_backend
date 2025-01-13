@@ -52,6 +52,11 @@ const employeeSchema = new mongoose.Schema({
     designation:{
         type:String
     },
+    teamId: {
+        type: mongoose.Schema.Types.ObjectId, // Links to the Team model
+        ref: 'Team',
+        default: null, // Default to null for employees not assigned to any team
+    },
 }, {
     timestamps: true
 });

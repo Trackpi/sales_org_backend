@@ -3,9 +3,12 @@ const Employee = require('../models/employeeModel');
 const adminhistory = require('../models/adminPanelHistory'); 
 
 // Get all teams
+// Fetches all teams from the database and populates manager and member details.
 exports.getTeams = async (req, res) => {
   try {
-    const teams = await Team.find();
+    const teams = await Team.find()
+    .populate("manager", "fullName")
+    .populate("members.employeeId", "fullName");
     res.status(200).json(teams);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -13,32 +16,41 @@ exports.getTeams = async (req, res) => {
 };
 
 // Create a new team
+// Validates input, ensures unique team name, assigns a manager, and creates a new team.
 exports.addTeam = async (req, res) => {
   const adminid = req.adminid; // Fetch admin ID from the request
   try {
-    const { teamName, manager, members } = req.body;
+    const { teamName, manager, teamColor } = req.body;
     const startingDate = new Date();
 
+ // Check if the team name is unique.
+ const existingTeam = await Team.findOne({ teamName });
+ if (existingTeam) {
+   return res.status(400).json({ error: "A team with this name already exists. Please choose a different name." });
+ }
+
+ // Ensure the selected manager exists and is not assigned to another team.
     const managerExists = await Employee.findById(manager);
     if (!managerExists) {
       return res.status(404).json({ error: "Manager not found" });
     }
     if (managerExists.teamId) {
-      return res.status(400).json({ error: "Manager is already assigned to a team" });
+      return res.status(400).json({ error: "Manager is already assigned to another team." });
     }
-
+   
+    // Create the team and assign the manager.
     const team = new Team({ teamName, startingDate, manager, members });
     await team.save();
 
     managerExists.teamId = team._id;
     await managerExists.save();
 
-    for (let member of members) {
+    for (const member of members) {
       const employee = await Employee.findById(member.employeeId);
       if (!employee) {
         return res.status(404).json({ error: `Employee with ID ${member.employeeId} not found` });
       }
-      if (employee.teamId) {
+      if (employee.teamId && employee.teamId !== String(team._id)) {
         return res.status(400).json({ error: `Employee ${employee.username} is already assigned to a team` });
       }
       employee.teamId = team._id;
@@ -58,9 +70,12 @@ exports.addTeam = async (req, res) => {
 };
 
 // Get team by ID
+// Fetches details of a specific team by its ID and populates manager and member information.
 exports.getTeamById = async (req, res) => {
   try {
-    const team = await Team.findById(req.params.id);
+    const team = await Team.findById(req.params.id)
+    .populate("manager")
+    .populate("members.employeeId");
     if (!team) return res.status(404).json({ error: "Team not found" });
     res.status(200).json(team);
   } catch (err) {
@@ -69,9 +84,10 @@ exports.getTeamById = async (req, res) => {
 };
 
 // View team details (including team members)
+// Similar to getTeamById, this fetches and displays team details.
 exports.viewTeamDetails = async (req, res) => {
   try {
-    const team = await Team.findById(req.params.id).populate("members.employeeId");
+    const team = await Team.findById(req.params.id).populate("manager").populate("members.employeeId");
     if (!team) return res.status(404).json({ error: "Team not found" });
     res.status(200).json(team);
   } catch (err) {
@@ -80,16 +96,75 @@ exports.viewTeamDetails = async (req, res) => {
 };
 
 // Update team
+// Allows updating team name, manager, team color, and members while ensuring all constraints.
 exports.updateTeam = async (req, res) => {
-  const adminid = req.adminid; // Fetch admin ID from the request
+  const adminid = req.adminid; // Get admin ID for logging.
   try {
-    const updatedTeam = await Team.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const { teamName, manager, teamColor, members } = req.body;
+    const team = await Team.findById(req.params.id);
 
-    if (!updatedTeam) {
+    if (!team) {
       return res.status(404).json({ error: "Team not found" });
     }
+
+    // Update manager if provided and different from the current one.
+    if (manager && manager !== String(team.manager)) {
+      const newManager = await Employee.findById(manager);
+      if (!newManager) {
+        return res.status(404).json({ error: "New manager not found" });
+      }
+      if (newManager.teamId) {
+        return res.status(400).json({ error: "The selected manager is already assigned to another team." });
+      }
+
+      // Remove current manager from the team.
+      const oldManager = await Employee.findById(team.manager);
+      if (oldManager) {
+        oldManager.teamId = null;
+        await oldManager.save();
+      }
+
+      // Assign new manager to the team.
+      newManager.teamId = team._id;
+      await newManager.save();
+      team.manager = manager;
+    }
+
+    // Update team details.
+    team.teamName = teamName || team.teamName;
+    team.teamColor = teamColor || team.teamColor;
+
+    // Update team members.
+    if (members) {
+      const updatedMembers = [];
+      for (const member of members) {
+        const employee = await Employee.findById(member.employeeId);
+        if (!employee) {
+          return res.status(404).json({ error: `Employee with ID ${member.employeeId} not found` });
+        }
+        if (employee.teamId && employee.teamId !== String(team._id)) {
+          return res.status(400).json({ error: `Employee ${employee.name} is already assigned to another team.` });
+        }
+        employee.teamId = team._id;
+        await employee.save();
+        updatedMembers.push({ employeeId: employee._id, name: employee.name, status: member.status });
+      }
+      team.members = updatedMembers;
+      team.teamCount = updatedMembers.length;
+    }
+
+    await team.save();
+
+// exports.updateTeam = async (req, res) => {
+//   const adminid = req.adminid; // Fetch admin ID from the request
+//   try {
+//     const updatedTeam = await Team.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//     });
+
+//     if (!updatedTeam) {
+//       return res.status(404).json({ error: "Team not found" });
+//     }
 
     // Log action in admin history
     await adminhistory.create({
@@ -104,6 +179,7 @@ exports.updateTeam = async (req, res) => {
 };
 
 // Delete team
+// Removes a team and unassigns its manager and members.
 exports.deleteTeam = async (req, res) => {
   const adminid = req.adminid; // Fetch admin ID from the request
   try {
@@ -111,8 +187,24 @@ exports.deleteTeam = async (req, res) => {
     if (!team) {
       return res.status(404).json({ error: "Team not found" });
     }
+    
+    // Unassign the manager.
+    const manager = await Employee.findById(team.manager);
+    if (manager) {
+      manager.teamId = null;
+      await manager.save();
+    }
 
-    // Log action in admin history
+    // Unassign all members.
+    for (const member of team.members) {
+      const employee = await Employee.findById(member.employeeId);
+      if (employee) {
+        employee.teamId = null;
+        await employee.save();
+      }
+    }
+
+    // Log Deletion in admin history
     await adminhistory.create({
       adminid,
       action: `Team deleted with ID: ${team._id}`
@@ -125,6 +217,7 @@ exports.deleteTeam = async (req, res) => {
 };
 
 // Add members to a team
+// Allows adding new members to a team while ensuring they aren't part of another team.
 exports.addMembersToTeam = async (req, res) => {
   const adminid = req.adminid; // Fetch admin ID from the request
   try {
@@ -133,6 +226,20 @@ exports.addMembersToTeam = async (req, res) => {
     const team = await Team.findById(teamId);
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
+    }
+
+    const newMembers = [];
+    for (const member of members) {
+      const employee = await Employee.findById(member.employeeId);
+      if (!employee) {
+        return res.status(404).json({ error: `Employee with ID ${member.employeeId} not found` });
+      }
+      if (employee.teamId && employee.teamId !== String(team._id)) {
+        return res.status(400).json({ error: `Employee ${employee.name} is already assigned to another team.` });
+      }
+      employee.teamId = team._id;
+      await employee.save();
+      newMembers.push({ employeeId: employee._id, name: employee.name, status: member.status });
     }
 
     team.members.push(...members);
@@ -189,8 +296,8 @@ exports.addMemberToTeam = async (req, res) => {
 // Search teams by name
 exports.searchTeams = async (req, res) => {
   try {
-    const { teamName } = req.query;
-    const teams = await Team.find({ teamName: { $regex: teamName, $options: 'i' } });
+    const { query } = req.query;
+    const teams = await Team.find({ teamName: { $regex: query, $options: 'i' } }).populate("manager", "fullName");
     res.status(200).json(teams);
   } catch (err) {
     res.status(500).json({ error: err.message });
