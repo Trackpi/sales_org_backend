@@ -20,6 +20,11 @@ router.put('/:id',verifyJwt , employeeController.updateEmployee);
 // Delete an employee by ID
 router.delete('/:id',verifyJwt , employeeController.deleteEmployee);
 
+// Soft Delete an employee by ID
+router.delete('/soft/:id',verifyJwt , employeeController.SoftDeletion);
+//restore trashed users 
+router.delete('/softRestore/:id',verifyJwt , employeeController.restoreUser);
+
 module.exports = router;
 
 

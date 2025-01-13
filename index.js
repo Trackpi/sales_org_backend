@@ -10,13 +10,14 @@ require("dotenv").config();
 const connectDB = require("./config/connection");
 const fs = require("fs");
 const path = require("path");
+const cron = require('node-cron');
 app.use(express.json());
 app.use(cors());
 const teamRouter = require('./routes/teamRouter');
 const employeeRoutes = require('./routes/employeeRouter')
 const companyRoutes = require('./routes/companyRouter')
-
 const adminManagementRoutes = require('./routes/adminManagementRoutes');
+const { permanentlyDeleteOldUsers } = require('./controllers/employeController');
 connectDB();
 
 app.listen(3001, () => {
@@ -36,6 +37,15 @@ app.use('/api/adminmanagement', adminManagementRoutes);
 app.use('/api/teams', teamRouter);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/companies', companyRoutes);
+
+
+// Schedule permanent deletion to run daily at midnight
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running scheduled permanent deletion...');
+  await permanentlyDeleteOldUsers();
+});
+console.log('Permanent deletion cron job scheduled.');
+
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found." });

@@ -87,6 +87,10 @@ const employeeSchema = new mongoose.Schema({
     pin:{
         type:String
     },
+    deletedAt: {
+        type:Date,
+        default:null
+    }
 }, {
     timestamps: true
 });
