@@ -17,11 +17,11 @@ const uploadFields = upload.fields([
   
 
 // Routes
-router.post("/employees",verifyjwt,uploadFields, employeeController.createEmployee); 
-router.get("/employees",verifyjwt, employeeController.getAllEmployees); 
-router.get("/employees/:id",verifyjwt, employeeController.getEmployeeById); 
-router.put("/employees/:id",verifyjwt, employeeController.updateEmployee); 
-router.delete("/employees/:id",verifyjwt, employeeController.deleteEmployee); 
+router.post("/",verifyjwt,uploadFields, employeeController.createEmployee); 
+router.get("/",verifyjwt, employeeController.getAllEmployees); 
+router.get("/:id",verifyjwt, employeeController.getEmployeeById); 
+router.put("/:id",verifyjwt, employeeController.updateEmployee); 
+router.delete("/:id",verifyjwt, employeeController.deleteEmployee); 
 
 // Soft Delete an employee by ID
 router.delete('/soft/:id',verifyjwt , employeeController.SoftDeletion);
