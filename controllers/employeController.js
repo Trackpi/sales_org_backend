@@ -1,5 +1,8 @@
+
 const Employee = require("../models/employeeModel"); 
 const bcrypt = require("bcrypt");
+
+
 
 // Create a new employee
 exports.createEmployee = async (req, res) => {
@@ -163,3 +166,5 @@ exports.permanentlyDeleteOldUsers = async () => {
       console.error('Error during permanent deletion: ' + error.message);
     }
   };
+
+  

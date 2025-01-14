@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
+const { ref } = require("pdfkit");
 
 const adminHisSchema = new mongoose.Schema(
   {
     adminid: {
       type: String,
+      ref:'Admin',
       required: true,
     },
     action: {
