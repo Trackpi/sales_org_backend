@@ -41,9 +41,9 @@ const TeamSchema = new mongoose.Schema({
         },
     },
   ],
-    archived: { 
-      type: Boolean, 
-      default: false
+   archived: { 
+    type: Boolean, 
+    default: false
     },
 });
 
