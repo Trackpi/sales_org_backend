@@ -14,6 +14,12 @@ exports.createEmployee = async (req, res) => {
   
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
+
+         // Check if employeeId already exists
+    const existingEmployee = await Employee.findOne({ employeeId });
+    if (existingEmployee) {
+      return res.status(400).json({ message: "Employee ID must be unique. This ID already exists." });
+    }
   
       // Create employee
       const newEmployee = new Employee({
