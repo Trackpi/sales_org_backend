@@ -41,10 +41,10 @@ const TeamSchema = new mongoose.Schema({
         },
     },
   ],
-  archived: { 
-    type: Boolean, 
-    default: false
-   },
+    archived: { 
+      type: Boolean, 
+      default: false
+    },
 });
 
 module.exports = mongoose.model("Team", TeamSchema);
