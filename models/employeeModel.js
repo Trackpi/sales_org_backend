@@ -53,7 +53,7 @@ const employeeSchema = new mongoose.Schema({
         type:String
     },
     teamId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,  
         ref: 'Team',
         default: null, 
     },
