@@ -1,15 +1,18 @@
 const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  employeeId: {
+  empID: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    default: function () {
+      return `EMP${Date.now()}`; // Generate unique ID
+    },
+  },
+  username: {
+    type: String,
+    required: true,
     trim: true,
   },
   email: {
@@ -94,7 +97,8 @@ const employeeSchema = new mongoose.Schema({
     },
   },
   teamId:{
-    type: String
+    type: String,
+    default:null
   }
 }, { timestamps: true });
 
