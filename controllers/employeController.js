@@ -188,15 +188,17 @@ exports.getTrashedUsers = async () => {
 
 // perment delete soft deleted user after 30 days
 exports.permanentlyDeleteOldUsers = async () => {
-  try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setMinutes(thirtyDaysAgo.getMinutes() - 1);
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 1);
+  
+      const result = await Employee.deleteMany({
+        deletedAt: { $lte: thirtyDaysAgo }
+      });
+      console.log(`${result.deletedCount} users permanently deleted.`);
+    } catch (error) {
+      console.error('Error during permanent deletion: ' + error.message);
+    }
+  };
 
-    const result = await Employee.deleteMany({
-      deletedAt: { $lte: thirtyDaysAgo },
-    });
-    console.log(`${result.deletedCount} users permanently deleted.`);
-  } catch (error) {
-    console.error("Error during permanent deletion: " + error.message);
-  }
-};
+
