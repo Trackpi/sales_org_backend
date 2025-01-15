@@ -2,7 +2,6 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const adminHisModel = require('../models/adminPanelHistory');
-const cloudinary = require('../config/cloudinary');
 const adminHisBackupModel = require('../models/adminPanalBackupPdf');
 
 // Generate PDF with a table for admin history backup
@@ -17,7 +16,7 @@ exports.generateArrayPDFForAdminHistoryBackup = async () => {
     }
 
     // Generate PDF
-    const pdfPath = path.join(__dirname, `../uploads/temppdf.pdf`);
+    const pdfPath = path.join(__dirname, `../uploads/adminLogsBackup/Admin_Log_Of_${new Date().toLocaleString().split(",")[0].replaceAll('/','_')}.pdf`);
     const doc = new PDFDocument({ margin: 30 });
     const writeStream = fs.createWriteStream(pdfPath);
     doc.pipe(writeStream);
@@ -25,46 +24,24 @@ exports.generateArrayPDFForAdminHistoryBackup = async () => {
     // Add title to the PDF
     doc.fontSize(18).text('Admin Panel History Data List', { align: 'center' });
     doc.moveDown();
+    doc.fontSize(12).text(`Date And Time : ${new Date().toLocaleString()}`, { align: 'start' });
+    doc.moveDown();
+    doc.moveDown();
 
-    // Draw table headers
-    const headers = ['Sl No', 'Admin ID', 'Action', 'Date'];
-    const columnWidths = [50, 150, 150, 200];
-    let startX = doc.x;
-    let startY = doc.y;
+    // Define table properties
+    const tableHeaders = ['Sl No', 'Admin ID', 'Action', 'Date'];
+    const tableRows = data.map((item, index) => [
+      index + 1, // Sl No
+      item.adminid || 'N/A', // Admin ID
+      item.action || 'N/A', // Action
+      item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A', // Date
+    ]);
 
-    doc.fontSize(12).font('Helvetica-Bold');
-    headers.forEach((header, i) => {
-      doc.text(header, startX, startY, { width: columnWidths[i], align: 'center' });
-      startX += columnWidths[i];
-    });
-
-    // Draw a line below headers
-    startY += 20;
-    doc.moveTo(doc.x, startY).lineTo(doc.page.width - doc.page.margins.right, startY).stroke();
-    startY += 10;
-
-    // Add rows to the table
-    doc.font('Helvetica');
-    data.forEach((obj, index) => {
-      startX = doc.x;
-      const row = [
-        index + 1, // Sl No
-        obj.adminid,
-        obj.action,
-        new Date(obj.createdAt).toLocaleString(),
-      ];
-
-      row.forEach((cell, i) => {
-        doc.text(cell, startX, startY, { width: columnWidths[i], align: 'center' });
-        startX += columnWidths[i];
-      });
-
-      startY += 20;
-      // Add a new page if we run out of space
-      if (startY > doc.page.height - doc.page.margins.bottom - 20) {
-        doc.addPage();
-        startY = doc.y;
-      }
+    // Render table
+    renderTable(doc, tableHeaders, tableRows, {
+      headers: { fontSize: 12, font: 'Helvetica-Bold' },
+      rows: { fontSize: 10, font: 'Helvetica' },
+      columnWidths: [50, 150, 150, 200],
     });
 
     // Finalize the PDF
@@ -76,18 +53,11 @@ exports.generateArrayPDFForAdminHistoryBackup = async () => {
       writeStream.on('error', reject);
     });
 
-    // Upload the PDF to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(pdfPath, {
-      resource_type: 'auto',
-      folder: 'admin_panal_Logs_pdfs',
-    });
+    console.log('PDF generated successfully:', pdfPath);
 
-    // Delete the temporary PDF file
-    fs.unlinkSync(pdfPath);
-
-    // Save the Cloudinary URL in backup table
-    await adminHisBackupModel.create({ pdf: uploadResult.secure_url });
-    console.log('PDF URL saved in backup table');
+    // Save the PDF path in the backup table
+    await adminHisBackupModel.create({ pdf: pdfPath });
+    console.log('PDF path saved in backup table');
 
     // Clear admin history
     await adminHisModel.deleteMany();
@@ -96,3 +66,46 @@ exports.generateArrayPDFForAdminHistoryBackup = async () => {
     console.error('Error generating or uploading PDF:', error);
   }
 };
+
+// Helper function to render a table
+function renderTable(doc, headers, rows, options) {
+  const { headers: headerStyle, rows: rowStyle, columnWidths } = options;
+  let startX = doc.x;
+  let startY = doc.y;
+
+  // Render headers
+  doc.fontSize(headerStyle.fontSize).font(headerStyle.font);
+  headers.forEach((header, index) => {
+    doc.text(header, startX, startY, {
+      width: columnWidths[index],
+      align: 'center',
+    });
+    startX += columnWidths[index];
+  });
+
+  // Draw line below headers
+  startY += 20;
+  doc.moveTo(doc.page.margins.left, startY).lineTo(doc.page.width - doc.page.margins.right, startY).stroke();
+  startY += 10;
+
+  // Render rows
+  doc.fontSize(rowStyle.fontSize).font(rowStyle.font);
+  rows.forEach((row) => {
+    startX = doc.page.margins.left;
+    row.forEach((cell, index) => {
+      doc.text(cell, startX, startY, {
+        width: columnWidths[index],
+        align: 'center',
+      });
+      startX += columnWidths[index];
+    });
+
+    startY += 20;
+
+    // Check for page overflow and add a new page if necessary
+    if (startY > doc.page.height - doc.page.margins.bottom - 20) {
+      doc.addPage();
+      startY = doc.y;
+    }
+  });
+}
