@@ -1,7 +1,5 @@
 
-const Employee = require("../models/employeeModel"); 
 const bcrypt = require("bcrypt");
-
 
 
 // Create a new employee
