@@ -154,7 +154,7 @@ exports.getTrashedUsers = async () => {
 exports.permanentlyDeleteOldUsers = async () => {
     try {
       const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setMinutes(thirtyDaysAgo.getMinutes() - 1);
+      thirtyDaysAgo.setate(thirtyDaysAgo.getDate() - 1);
   
       const result = await Employee.deleteMany({
         deletedAt: { $lte: thirtyDaysAgo }
