@@ -6,6 +6,9 @@ const employeeSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
+    default: function () {
+      return `EMP${Date.now()}`; // Generate unique ID
+    },
   },
   username: {
     type: String,
