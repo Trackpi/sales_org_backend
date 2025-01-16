@@ -28,6 +28,11 @@ router.post("/add-members",verifyJwt , teamController.addMembersToTeam);
 // Search for teams
 router.get("/search",verifyJwt , teamController.searchTeams);
 
+// // Export team data
+// router.get("/export", verifyJwt, teamController.exportTeams);
+
+// // Bulk delete teams
+// router.post("/bulk-delete", verifyJwt, teamController.bulkDeleteTeams);
 
 module.exports = router;
 
