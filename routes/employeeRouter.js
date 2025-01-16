@@ -1,26 +1,31 @@
-const express = require('express');
-const employeeController = require('../controllers/employeController');
-const verifyJwt = require('../middlewares/jwtMiddleware');
+const express = require("express");
+const verifyjwt = require('../middlewares/jwtMiddleware')
+const upload = require('../middlewares/multer')
 
 const router = express.Router();
+const employeeController = require("../controllers/employeController");
 
 
-// Create a new employee
-router.post('/',verifyJwt, employeeController.createEmployee);
+// Multer configuration for file uploads
+const uploadFields = upload.fields([
+    { name: "businessCard", maxCount: 1 },
+    { name: "employeeIdCard", maxCount: 1 },
+    { name: "offerLetter", maxCount: 1 },
+    { name: "nda", maxCount: 1 },
+    { name: "nsa", maxCount: 1 },
+  ]);
+  
 
-// Get all employees
-router.get('/',verifyJwt , employeeController.getAllEmployees);
+// Routes
+router.post("/",verifyjwt,uploadFields, employeeController.createEmployee); 
+router.get("/",verifyjwt, employeeController.getAllEmployees); 
+router.get("/:id",verifyjwt, employeeController.getEmployeeById); 
+router.put("/:id",verifyjwt, employeeController.updateEmployee); 
+router.delete("/:id",verifyjwt, employeeController.deleteEmployee); 
 
-// Get a single employee by ID
-router.get('/:id',verifyJwt , employeeController.getEmployeeById);
-
-// Update an employee by ID
-router.put('/:id',verifyJwt , employeeController.updateEmployee);
-
-// Delete an employee by ID
-router.delete('/:id',verifyJwt , employeeController.deleteEmployee);
+// Soft Delete an employee by ID
+router.delete('/soft/:id',verifyjwt , employeeController.SoftDeletion);
+//restore trashed users 
+router.delete('/softRestore/:id',verifyjwt , employeeController.restoreUser);
 
 module.exports = router;
-
-
-

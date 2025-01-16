@@ -5,19 +5,12 @@ const fs = require("fs");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder;
-    if (req.baseUrl.includes("projects")) {
-      folder = "uploads/projects";
-    } else if (req.baseUrl.includes("videos")) {
-      folder = "uploads/videos";
+    if (req.baseUrl.includes("employyes")) {
+      folder = "uploads/employees";
+    } else if(req.baseUrl.includes("companies")){
+      folder = "uploads/companies";
     }
-    else if(req.baseUrl.includes("images")){
-      folder = "uploads/images";
-    } 
-    else if (req.baseUrl.includes("partners")){
-      folder = "uploads/partners";
-     } else if (req.baseUrl.includes("posters")){
-        folder = "uploads/posters";
-      }else {
+    else {
 
       folder = "uploads/";
     }

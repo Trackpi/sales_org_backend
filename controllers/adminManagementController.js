@@ -1,12 +1,13 @@
 const bcrypt = require('bcrypt');
 const Admin = require('../models/adminManagementModel');
-const adminhistory = require('../models/adminPanelHistory'); 
+const adminhistory = require('../models/adminPanelHistory');
 
 // Create a new admin
 const createAdmin = async (req, res) => {
   const adminid = req.adminid;
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, fullname, role } = req.body;
+    const profilePic = req.file ? `/uploads/images/${req.file.filename}` : null;
 
     // Check if username or email already exists
     const existingAdmin = await Admin.findOne({ $or: [{ username }, { email }] });
@@ -21,6 +22,9 @@ const createAdmin = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      fullname,
+      role,
+      profilePic,
     });
 
     await newAdmin.save();
@@ -28,7 +32,13 @@ const createAdmin = async (req, res) => {
 
     res.status(201).json({
       message: 'Admin added successfully',
-      admin: { username: newAdmin.username, email: newAdmin.email },
+      admin: {
+        username: newAdmin.username,
+        email: newAdmin.email,
+        fullname: newAdmin.fullname,
+        role: newAdmin.role,
+        profilePic: newAdmin.profilePic,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -56,7 +66,8 @@ const editAdmin = async (req, res) => {
   const adminid = req.adminid;
   try {
     const { username } = req.params;
-    const { newUsername, newEmail, newPassword } = req.body;
+    const { newUsername, newEmail, newPassword, newFullname, newRole } = req.body;
+    const profilePic = req.file ? `/uploads/images/${req.file.filename}` : null;
 
     const admin = await Admin.findOne({ username });
     if (!admin) {
@@ -67,6 +78,9 @@ const editAdmin = async (req, res) => {
     if (newUsername) admin.username = newUsername;
     if (newEmail) admin.email = newEmail;
     if (newPassword) admin.password = await bcrypt.hash(newPassword, 10);
+    if (newFullname) admin.fullname = newFullname;
+    if (newRole) admin.role = newRole;
+    if (profilePic) admin.profilePic = profilePic;
 
     await admin.save();
     await adminhistory.create({
