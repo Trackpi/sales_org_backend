@@ -96,10 +96,12 @@ const employeeSchema = new mongoose.Schema({
       required: true,
     },
   },
-  teamId:{
-    type: String,
-    default:null
-  }
+  teamId: {
+    type: mongoose.Schema.Types.ObjectId,  
+    ref: 'Team',
+    default: null, 
+},
 }, { timestamps: true });
 
 module.exports = mongoose.model("Employee", employeeSchema);
+
