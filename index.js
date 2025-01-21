@@ -54,7 +54,7 @@ app.use((req, res) => {
 
 
 // Schedule admin panel history deletion to run every month 1 2pm
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 0 1 * * ', async () => {
   console.log('Running scheduled admin panel history deletion...');
   await generateArrayPDFForAdminHistoryBackup();
 });
