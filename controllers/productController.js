@@ -37,3 +37,49 @@ exports.getProducts = async (req, res, next) => {
     next(err);
   }
 };
+
+
+exports.editProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, mrp, sellingPrice } = req.body;
+
+    if (!name || mrp == null || sellingPrice == null) {
+      throw new Error('All fields are mandatory');
+    }
+    if (sellingPrice > mrp) {
+      throw new Error('Selling Price cannot exceed MRP');
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    product.name = name;
+    product.mrp = mrp;
+    product.sellingPrice = sellingPrice;
+
+    await product.save();
+    res.status(200).json({ success: true, message: 'Product successfully updated' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    await Product.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: 'Product successfully deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
