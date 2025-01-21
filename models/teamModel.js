@@ -4,11 +4,12 @@ const TeamSchema = new mongoose.Schema({
   teamName: {
      type: String, 
      required: true,
-     unique: true 
+     unique: true,
+     trim: true
     },
   startingDate: {
      type: Date,
-     required: true 
+     default: Date.now 
     },
   manager: {
     type: mongoose.Schema.Types.ObjectId,

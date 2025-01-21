@@ -10,6 +10,9 @@ router.get("/",verifyJwt , teamController.getTeams);
 // Create a new team
 router.post("/",verifyJwt , teamController.addTeam);
 
+// Search for teams
+router.get("/search",verifyJwt , teamController.searchTeams);
+
 // Get a single team by ID
 router.get("/:id",verifyJwt , teamController.getTeamById);
 
@@ -25,14 +28,14 @@ router.delete("/:id",verifyJwt , teamController.deleteTeam);
 // Add members to a team
 router.post("/add-members",verifyJwt , teamController.addMembersToTeam);
 
-// Search for teams
-router.get("/search",verifyJwt , teamController.searchTeams);
 
-// // Export team data
-// router.get("/export", verifyJwt, teamController.exportTeams);
+// Export team data
+router.get("/export", verifyJwt, teamController.exportTeams);
 
-// // Bulk delete teams
-// router.post("/bulk-delete", verifyJwt, teamController.bulkDeleteTeams);
+// Bulk delete teams
+router.post("/bulk-delete", verifyJwt, teamController.bulkDeleteTeams);
+//pagination
+router.get("/pagination", verifyJwt, teamController.getTeamsWithPagination);
 
 module.exports = router;
 
