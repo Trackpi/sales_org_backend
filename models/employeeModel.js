@@ -101,6 +101,10 @@ const employeeSchema = new mongoose.Schema({
     ref: 'Team',
     default: null, 
 },
+status:{
+  type:String,
+  default: "Active"
+}
 }, { timestamps: true });
 
 module.exports = mongoose.model("Employee", employeeSchema);

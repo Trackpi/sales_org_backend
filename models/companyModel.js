@@ -6,6 +6,10 @@ const companySchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    description:{
+        type:String,
+        required:true
+    },
     contact: {
         type: String,
         required: true,
@@ -22,6 +26,10 @@ const companySchema = new mongoose.Schema({
     role:{
         type:String,
         default:"Company"
+    },
+    status:{
+        type:String,
+        default:"Active"
     }
 }, {
     timestamps: true
