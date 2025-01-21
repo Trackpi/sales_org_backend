@@ -19,6 +19,7 @@ const companyRoutes = require('./routes/companyRouter')
 const adminManagementRoutes = require('./routes/adminManagementRoutes');
 const productRoutes = require('./routes/productRouter');
 const { permanentlyDeleteOldUsers } = require('./controllers/employeController');
+const { generateArrayPDFForAdminHistoryBackup } = require('./controllers/adminPanelHistory');
 connectDB();
 
 app.listen(3001, () => {
@@ -46,6 +47,19 @@ cron.schedule('0 0 * * *', async () => {
   await permanentlyDeleteOldUsers();
 });
 console.log('Permanent deletion cron job scheduled.');
+
+
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found." });
+});
+
+
+// Schedule admin panel history deletion to run every month 1 2pm
+cron.schedule('0 0 1 * * ', async () => {
+  console.log('Running scheduled admin panel history deletion...');
+  await generateArrayPDFForAdminHistoryBackup();
+});
+console.log('admin panel history deletion cron job scheduled.');
 
 
 app.use((req, res) => {

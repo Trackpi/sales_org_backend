@@ -6,7 +6,6 @@ exports.createEmployee = async (req, res) => {
   try {
     const {
       username,
-      empID,
       email,
       phoneNumber,
       designation,
@@ -18,34 +17,21 @@ exports.createEmployee = async (req, res) => {
 
     console.log("Request Body:", req.body);
 
-    // Check for missing fields
-    if (!username || !email || !phoneNumber || !designation || !password) {
-      return res.status(400).json({ message: "All required fields must be provided." });
+    // Check for missing required fields
+    if (!username || !email || !phoneNumber || !designation || !password || !permissionType) {
+      return res.status(400).json({ message: "All required fields must be provided" });
     }
 
-    // Validate empID or generate one
-    const generatedEmpID = empID || `EMP${Date.now()}`;
-
-    // Check if empID or email already exists
+    // Check if email or phone number already exists
     const existingEmployee = await Employee.findOne({
-      $or: [{ empID: generatedEmpID }, { email }],
+      $or: [{ email }, { phoneNumber }],
     });
 
     if (existingEmployee) {
-      return res.status(400).json({ message: "Employee ID or email already exists." });
-    }
-
-    // Check for required files
-    const files = req.files;
-    if (
-      !files ||
-      !files.businessCard ||
-      !files.employeeIdCard ||
-      !files.offerLetter ||
-      !files.nda ||
-      !files.nsa
-    ) {
-      return res.status(400).json({ message: "All required documents must be uploaded." });
+      return res.status(400).json({
+        message: "Email or phone number already exists.",
+        field: existingEmployee.email === email ? "email" : "phoneNumber",
+      });
     }
 
     // Hash the password
@@ -54,20 +40,19 @@ exports.createEmployee = async (req, res) => {
     // Create the employee object
     const newEmployee = new Employee({
       username,
-      empID: generatedEmpID,
       email,
       phoneNumber,
       designation,
       password: hashedPassword,
       permissionType,
-      bankDetails: JSON.parse(bankDetails),
-      documents: {
-        businessCard: files.businessCard[0].path,
-        employeeIdCard: files.employeeIdCard[0].path,
-        offerLetter: files.offerLetter[0].path,
-        nda: files.nda[0].path,
-        nsa: files.nsa[0].path,
-      },
+      bankDetails: bankDetails ? JSON.parse(bankDetails) : null, // Parse JSON string
+      documents: req.files ? {
+        businessCard: req.files.businessCard?.[0]?.path || "",
+        employeeIdCard: req.files.employeeIdCard?.[0]?.path || "",
+        offerLetter: req.files.offerLetter?.[0]?.path || "",
+        nda: req.files.nda?.[0]?.path || "",
+        nsa: req.files.nsa?.[0]?.path || "",
+      } : {},
       teamId,
     });
 
@@ -77,12 +62,7 @@ exports.createEmployee = async (req, res) => {
       employee: newEmployee,
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        message: "Duplicate key error. Ensure unique fields are not repeated.",
-        field: Object.keys(error.keyPattern)[0],
-      });
-    }
+    
     res.status(500).json({ message: "Error creating employee", error: error.message });
   }
 };
@@ -208,15 +188,17 @@ exports.getTrashedUsers = async () => {
 
 // perment delete soft deleted user after 30 days
 exports.permanentlyDeleteOldUsers = async () => {
-  try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setMinutes(thirtyDaysAgo.getMinutes() - 1);
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 1);
+  
+      const result = await Employee.deleteMany({
+        deletedAt: { $lte: thirtyDaysAgo }
+      });
+      console.log(`${result.deletedCount} users permanently deleted.`);
+    } catch (error) {
+      console.error('Error during permanent deletion: ' + error.message);
+    }
+  };
 
-    const result = await Employee.deleteMany({
-      deletedAt: { $lte: thirtyDaysAgo },
-    });
-    console.log(`${result.deletedCount} users permanently deleted.`);
-  } catch (error) {
-    console.error("Error during permanent deletion: " + error.message);
-  }
-};
+

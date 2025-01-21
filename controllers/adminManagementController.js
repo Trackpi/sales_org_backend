@@ -118,4 +118,35 @@ const deleteAdmin = async (req, res) => {
   }
 };
 
-module.exports = { createAdmin, getAllAdmins, editAdmin, deleteAdmin };
+const searchAdmins = async (req, res) => {
+  const adminid = req.adminid; // Use this for logging history
+  try {
+    const { search } = req.query;
+
+    if (!search) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Perform a case-insensitive search for username, fullname, or email
+    const admins = await Admin.find({
+      $or: [
+        { username: { $regex: search, $options: 'i' } },
+        { fullname: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ],
+    }).select('-password'); // Exclude passwords from the response
+
+    await adminhistory.create({
+      adminid,
+      action: `Searched admins with query: "${search}"`,
+    });
+
+    res.status(200).json(admins);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error searching admins', error });
+  }
+};
+
+
+module.exports = { createAdmin, getAllAdmins, editAdmin, deleteAdmin,searchAdmins };
