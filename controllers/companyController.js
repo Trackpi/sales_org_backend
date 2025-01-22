@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 exports.createCompany = async (req, res) => {
   const adminid = req.adminid; // Fetch admin ID from the request
   try {
-    const { username, contact, email, password, role, status } = req.body;
+    const { username, contact,description, email, password, role, status } = req.body;
 
     // Check if the company email already exists
     const existingCompany = await Company.findOne({ $or: [{ email }, { username }] });
@@ -21,7 +21,7 @@ exports.createCompany = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new company
-    const newCompany = new Company({ username, contact, email, password: hashedPassword, role , status});
+    const newCompany = new Company({ username, contact, description, email, password: hashedPassword, role , status});
     await newCompany.save();
 
     // Log action in admin history
