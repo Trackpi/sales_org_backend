@@ -31,13 +31,63 @@ exports.addProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find().populate('companyId', 'name');
-    res.status(200).json({ success: true, data: products });
+    const { search, sortField, sortOrder, minPrice, maxPrice, companyName, status, page = 1, limit = 10 } = req.query;
+
+    const query = {};
+
+    // Search functionality
+    if (search) {
+      query.name = { $regex: search, $options: 'i' }; // Case-insensitive search for product name
+    }
+
+    // Filter by company name
+    if (companyName) {
+      const company = await Company.findOne({ name: { $regex: companyName, $options: 'i' } });
+      if (company) {
+        query.companyId = company._id;
+      }
+    }
+
+    // Filter by status (active/inactive)
+    if (status) {
+      query.isActive = status === 'active';
+    }
+
+    // Filter by price range
+    if (minPrice != null || maxPrice != null) {
+      query.sellingPrice = {};
+      if (minPrice != null) query.sellingPrice.$gte = parseFloat(minPrice);
+      if (maxPrice != null) query.sellingPrice.$lte = parseFloat(maxPrice);
+    }
+
+    // Sorting
+    const sortOptions = {};
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    // Pagination
+    const skip = (page - 1) * parseInt(limit);
+
+    // Fetch products with query, sort, and pagination
+    const products = await Product.find(query)
+      .populate('companyId', 'name')
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Count total documents matching query
+    const total = await Product.countDocuments(query);
+    res.status(200).json({ 
+      success: true,
+       data: products,
+       total,
+      page,
+      pages: Math.ceil(total / limit), });
   } catch (err) {
     next(err);
   }
 };
-
 
 exports.editProduct = async (req, res, next) => {
   try {
