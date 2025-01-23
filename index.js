@@ -19,6 +19,7 @@ const companyRoutes = require('./routes/companyRouter')
 const adminManagementRoutes = require('./routes/adminManagementRoutes');
 const productRoutes = require('./routes/productRouter');
 const faqRouter = require('./routes/faqRoute');
+const productFaqRouter = require('./routes/productFaqRouter');
 const { permanentlyDeleteOldUsers } = require('./controllers/employeController');
 const { generateArrayPDFForAdminHistoryBackup } = require('./controllers/adminPanelHistory');
 connectDB();
@@ -42,7 +43,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/companies/queries',faqRouter)
-
+app.use('/api/companies/queries',productFaqRouter)
 // Schedule permanent deletion to run daily at midnight
 cron.schedule('0 0 * * *', async () => {
   console.log('Running scheduled permanent deletion...');
